@@ -9,8 +9,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 		this._idGenerator = idGenerator;
 	}
 
-	async addThread(/*userId,*/ newThread) {
-		// const { title, body } = newThread;
+	async addThread( newThread) {
 		const { userId, title, body } = newThread;
 
 		const id = `thread-${this._idGenerator()}`;
@@ -22,7 +21,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 
 		const result = await this._pool.query(query);
 
-		return new AddedThread({ ...result.rows[0] });
+		return new AddedThread(result.rows[0]);
 	}
 
 	async verifyThreadById(id) {
