@@ -200,17 +200,36 @@ describe('ReplyRepositoryPostgres', () => {
 
 	describe('deleteReply function', () => {
 		it('should change column is_delete to value 1', async () => {
-			// Arrange
-			const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool);
-			const replyId = 'reply-123';
-			await UsersTableTestHelper.addUser({});
-			await ThreadsTableTestHelper.addThread({});
-			await CommentsTableTestHelper.addComment({});
-			await ReplyTableTestHelper.addReply({});
+			await UsersTableTestHelper.addUser({ id: 'user-123' });
+			await ThreadsTableTestHelper.addThread({
+			  id: 'thread-123',
+			  owner: 'user-123',
+			});
+			await CommentsTableTestHelper.addComment({
+			  id: 'comment-123',
+			  content: 'Javascript',
+			  owner: 'user-123',
+			  threadId: 'thread-123',
+			});
 
-			// Action and assert
-			const isDelete = await replyRepositoryPostgres.deleteReply(replyId);
-			expect(isDelete).toBe('1');
+			await RepliesTableTestHelper.addReply({
+				id: 'reply-123',
+				content: 'java bagus',
+				commentId: 'comment-123',
+				owner: 'user-123',
+			})
+	  
+			const replyId = 'reply-123';
+			const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+	  
+			// Action
+			await replyRepositoryPostgres.deleteReply(replyId);
+	  
+			// Assert
+			const replies = await RepliesTableTestHelper.findRepliesById(replyId);
+
+			expect(replies).toHaveLength(1);
+			expect(replies[0].is_delete).toEqual('1');
 		});
 	});
 });

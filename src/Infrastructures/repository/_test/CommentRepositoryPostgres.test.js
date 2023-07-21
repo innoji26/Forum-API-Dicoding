@@ -211,16 +211,29 @@ describe('CommentRepositoryPostgres', () => {
 
 	describe('deleteComment function', () => {
 		it('should change column is_delete to value 1', async () => {
-			// Arrange
-			const commentRepositoryPostgres = new CommentRepositoryPostgres(pool);
-			const commentId = 'comment-123';
-			await UsersTableTestHelper.addUser({});
-			await ThreadsTableTestHelper.addThread({});
-			await CommentsTableTestHelper.addComment({});
 
-			// Action and assert
-			const isDelete = await commentRepositoryPostgres.deleteComment(commentId);
-			expect(isDelete).toBe('1');
+			await UsersTableTestHelper.addUser({ id: 'user-123' });
+			await ThreadsTableTestHelper.addThread({
+			  id: 'thread-123',
+			  owner: 'user-123',
+			});
+			await CommentsTableTestHelper.addComment({
+			  id: 'comment-123',
+			  content: 'Javascript',
+			  owner: 'user-123',
+			  threadId: 'thread-123',
+			});
+	  
+			const commentId = 'comment-123';
+			const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+	  
+			// Action
+			await commentRepositoryPostgres.deleteComment(commentId);
+	  
+			// Assert
+			const comments = await CommentsTableTestHelper.findCommentsById(commentId);
+			expect(comments).toHaveLength(1);
+			expect(comments[0].is_delete).toEqual('1');
 		});
 	});
 });

@@ -19,7 +19,7 @@ const RepliesTableTestHelper = {
 	},
 	async findRepliesById(id) {
 		const query = {
-			text: 'SELECT id FROM replies WHERE id = $1',
+			text: 'SELECT * FROM replies WHERE id = $1',
 			values: [id],
 		};
 
